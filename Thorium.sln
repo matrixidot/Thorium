@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thorium", "Thorium\Thorium.csproj", "{EB7CE7F3-417D-4B95-858E-BE0613546CCA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tools", "Tools\Tools.csproj", "{BEC907DE-820C-44FA-86CE-B21092B0C8FB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EB7CE7F3-417D-4B95-858E-BE0613546CCA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB7CE7F3-417D-4B95-858E-BE0613546CCA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB7CE7F3-417D-4B95-858E-BE0613546CCA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB7CE7F3-417D-4B95-858E-BE0613546CCA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BEC907DE-820C-44FA-86CE-B21092B0C8FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BEC907DE-820C-44FA-86CE-B21092B0C8FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BEC907DE-820C-44FA-86CE-B21092B0C8FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BEC907DE-820C-44FA-86CE-B21092B0C8FB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

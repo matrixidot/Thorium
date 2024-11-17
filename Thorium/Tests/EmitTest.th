@@ -1,0 +1,256 @@
+﻿// Test 1 - Addition
+5 + 2;
+// Expected Result: 7
+
+// Test 2 - Subtraction
+5 - 2;
+// Expected Result: 3
+
+// Test 3 - Multiplication
+5 * 2;
+// Expected Result: 10
+
+// Test 4 - Division (Integer Division)
+5 / 2;
+// Expected Result: 2
+
+// Test 5 - Division (Floating-Point Division)
+5.0 / 2;
+// Expected Result: 2.5
+
+// Test 6 - Modulo
+5 % 2;
+// Expected Result: 1
+
+// Test 7 - Exponentiation
+2 ** 3;
+// Expected Result: 8
+
+// Test 8 - Negative Exponent
+2 ** -1;
+// Expected Result: 0.5
+
+// Test 9 - Zero Exponent
+2 ** 0;
+// Expected Result: 1
+
+// Test 10 - Bitwise AND
+5 & 3;
+// Expected Result: 1
+
+// Test 11 - Bitwise OR
+5 | 3;
+// Expected Result: 7
+
+// Test 12 - Bitwise XOR
+5 ^ 3;
+// Expected Result: 6
+
+// Test 13 - Bitwise NOT
+~5;
+// Expected Result: -6
+
+// Test 14 - Bitwise Left Shift
+5 << 1;
+// Expected Result: 10
+
+// Test 15 - Bitwise Right Shift
+5 >> 1;
+// Expected Result: 2
+
+// Test 16 - Equal To
+5 == 5;
+// Expected Result: true
+
+// Test 17 - Not Equal To
+5 != 2;
+// Expected Result: true
+
+// Test 18 - Less Than
+5 < 2;
+// Expected Result: false
+
+// Test 19 - Less Than or Equal To
+5 <= 5;
+// Expected Result: true
+
+// Test 20 - Greater Than
+5 > 2;
+// Expected Result: true
+
+// Test 21 - Greater Than or Equal To
+5 >= 5;
+// Expected Result: true
+
+// Test 22 - Addition and Multiplication without Grouping
+5 + 2 * 3;
+// Expected Result: 11
+
+// Test 23 - Addition and Multiplication with Grouping
+(5 + 2) * 3;
+// Expected Result: 21
+
+// Test 24 - Complex Expression with Grouping
+(5 + 2) * (3 + 4);
+// Expected Result: 49
+
+// Test 25 - Nested Grouping
+((5 + 2) * (3 - 1)) / (2 ** 2);
+// Expected Result: 3.5
+
+// Test 26 - Mixed Operators and Types
+(5 + 2.5) * (3 - 1);
+// Expected Result: 15.0
+
+// Test 27 - Unary Minus
+-5 + 3;
+// Expected Result: -2
+
+// Test 28 - Double Negation
+-(-5);
+// Expected Result: 5
+
+// Test 29 - Floating-Point Addition
+5.0 + 2;
+// Expected Result: 7.0
+
+// Test 30 - Floating-Point Multiplication
+5 * 2.5;
+// Expected Result: 12.5
+
+// Test 31 - Exponentiation with Floating-Point Base
+2.5 ** 2;
+// Expected Result: 6.25
+
+// Test 32 - Exponentiation with Floating-Point Exponent
+2 ** 2.5;
+// Expected Result: 5.656854249492381
+
+// Test 33 - Complex Bitwise Expression
+(5 & 3) | (2 ^ 1);
+// Expected Result: 3
+
+// Explanation:
+// (5 & 3) = 1
+// (2 ^ 1) = 3
+// (1 | 3) = 3
+
+// Test 34 - Bitwise Shift and Addition
+(5 << 2) + (3 >> 1);
+// Expected Result: 20 + 1 = 21
+
+// Test 35 - Relational and Arithmetic
+(5 + 2) == 7;
+// Expected Result: true
+
+// Test 36 - Relational with Arithmetic and Grouping
+(5 + 2) * 3 > 20;
+// Expected Result: true
+
+// Test 37 - Complex Logical Expression
+(5 > 2) == (3 < 1);
+// Expected Result: false
+
+// Test 38 - Mixed Bitwise and Arithmetic
+(5 | 2) + (3 & 1);
+// Expected Result: 7 + 1 = 8
+
+// Test 39 - Bitwise NOT and Addition
+~5 + 2;
+// Expected Result: -6 + 2 = -4
+
+// Test 40 - Chained Operations
+5 + 2 * 3 - 4 / 2;
+// Expected Result: 5 + 6 - 2 = 9
+
+// Test 41 - Grouped Chained Operations
+(5 + 2) * (3 - 4) / 2;
+// Expected Result: (7 * -1) / 2 = -3.5
+
+// Test 42 - Complex Exponentiation
+(2 + 3) ** (1 + 1);
+// Expected Result: 5 ** 2 = 25
+
+// Test 43 - Negative Numbers in Exponentiation
+(-2) ** 3;
+// Expected Result: -8
+
+// Test 44 - Bitwise Operations with Shifts and Grouping
+((5 & 3) << 1) + ((2 | 1) >> 1);
+// Expected Result: (1 << 1) + (3 >> 1) = 2 + 1 = 3
+
+// Test 45 - Modulo with Negative Dividend
+-5 % 2;
+// Expected Result: -1
+
+// Note: The result may vary depending on how negative numbers are handled in modulo operation.
+
+// Test 46 - Large Exponentiation
+2 ** 10;
+// Expected Result: 1024
+
+// Test 47 - Division by Zero (Integer Division)
+// 5 / 0;
+// Expected Result: Error (Division by zero)
+
+// Test 48 - Modulo by Zero
+// 5 % 0;
+// Expected Result: Error (Division by zero)
+
+// Test 49 - Exponentiation to Negative Exponent
+2 ** -3;
+// Expected Result: 0.125
+
+// Test 50 - Bitwise AND with Zero
+5 & 0;
+// Expected Result: 0
+
+// Test 51 - Bitwise OR with Zero
+5 | 0;
+// Expected Result: 5
+
+// Test 52 - Bitwise XOR with Zero
+5 ^ 0;
+// Expected Result: 5
+
+// Test 53 - Bitwise NOT of Zero
+~0;
+// Expected Result: -1
+
+// Test 54 - Left Shift by Zero
+5 << 0;
+// Expected Result: 5
+
+// Test 55 - Right Shift by Zero
+5 >> 0;
+// Expected Result: 5
+
+// Test 56 - Zero Left Shift
+0 << 5;
+// Expected Result: 0
+
+// Test 57 - Zero Right Shift
+0 >> 5;
+// Expected Result: 0
+
+// Test 58 - Exponentiation with Zero Base
+0 ** 5;
+// Expected Result: 0
+
+// Test 59 - Exponentiation with Zero Exponent
+5 ** 0;
+// Expected Result: 1
+
+// Test 60 - Complex Expression with All Operators
+((5 + 2) * (3 - 1) / (2 ** 2)) - (5 & 3) + (~2 | 1);
+// Expected Result: Calculation step by step:
+// (5 + 2) = 7
+// (3 - 1) = 2
+// (2 ** 2) = 4
+// (7 * 2) / 4 = 14 / 4 = 3.5
+// (5 & 3) = 1
+// ~2 = -3
+// (-3 | 1) = -3
+// Final calculation: 3.5 - 1 + (-3) = -0.5
+
+// Expected Result: -0.5
