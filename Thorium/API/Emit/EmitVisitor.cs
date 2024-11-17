@@ -120,6 +120,7 @@ public partial class Emitter : ExprVisitor<Expression>, StmtVisitor<Expression> 
             double => typeof(double),
             bool => typeof(bool),
             string => typeof(string),
+            char => typeof(char),
             null => typeof(object),
             _ => throw Error(expr.Tkn, $"Unsupported literal type: {value?.GetType()}"),
         };

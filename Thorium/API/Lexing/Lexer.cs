@@ -179,12 +179,13 @@ public class Lexer(string Source) {
     // Helper to check if a string is a valid type
     private bool IsType(string identifier) {
         // Built-in types or user-defined types (expand as needed)
-        string[] validTypes = ["int", "long", "double", "string", "char", "object"];
+        string[] validTypes = ["int", "long", "double", "string", "char", "object", "bool"];
         return validTypes.Contains(identifier) || IsUserDefinedType(identifier);
     }
 
     // Extendable method for user-defined types
     private bool IsUserDefinedType(string typeName) {
+        char c = 's';
         return Type.GetType(typeName) != null;
     }
     

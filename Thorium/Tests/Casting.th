@@ -1,0 +1,35 @@
+// Typecast Tests with Variables and Mathematical Operations
+
+// Variable definitions
+int a = 2;
+long b = 4;
+double c = 234.561;
+char d = 'c';
+bool flag = true;
+string s = "Thorium";
+object obj = 100;
+
+// Valid typecasts and operations
+int result1 = (int)c + a;            // Casting double to int and adding
+double result2 = (double)a * c;      // Casting int to double and multiplying
+long result3 = (long)c + b;          // Casting double to long and adding
+long result4 = (long)((int)obj + a);    // Casting object to long and then to int
+
+// Mixed type operations
+double result5 = (double)a / (double)b;  // Division with type promotion
+long result6 = (long)(b * 2.5);          // Multiplying and casting to long
+string result7 = (string)(object)s;     // Casting string to object and back
+
+// Casting with char
+int charToInt = (int)d + a;             // Casting char to int and adding
+
+
+// Print statements for valid operations
+print result1;
+print result2;
+print result3;
+print result4;
+print result5;
+print result6;
+print result7;
+print charToInt;
