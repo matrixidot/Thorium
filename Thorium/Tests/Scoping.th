@@ -1,0 +1,12 @@
+int x = 1;
+print x; // Should print 1
+{
+    int x = 2;
+    print x; // Should print 2
+    {
+        int x = 3;
+        print x; // Should print 3
+    }
+    print x; // Should print 2
+}
+print x; // Should print 1

@@ -1,6 +1,5 @@
 ﻿namespace Thorium;
 
-using System.Diagnostics;
 using API.Emit;
 using API.Errors;
 using API.Lexing;
@@ -11,87 +10,19 @@ public class Thorium {
     private static readonly ILRunner runner = new();
     private static bool HadError;
     private static bool HadRuntimeError;
-
     public static void Main(string[] args)
     {
-        if (args.Length == 1)
-        {
-            RunScript(args[0]);
+        if (args.Length == 1) {
+            Run(File.ReadAllText(args[0]));
+            Console.WriteLine("\nCompleted... Press any key to exit.");
+            Console.ReadKey();
         }
-        else if (args.Length == 0)
-        {
-            StartRepl();
-        }
-        else
-        {
-            Console.WriteLine("Usage: Thorium [script]");
-            Environment.Exit(64);
+        else {
+            REPL.Start();
         }
     }
-
-    private static void StartRepl()
-    {
-        Console.WriteLine("Thorium REPL. Type 'exit' to quit.");
-        while (true)
-        {
-            Console.Write("th> ");
-            string line = Console.ReadLine();
-            if (string.IsNullOrEmpty(line))
-            {
-                continue;
-            }
-            if (line.ToLower() == "exit")
-            {
-                break;
-            }
-            if (line.StartsWith(".run "))
-            {
-                string path = line.Substring(5).Trim();
-                RunScriptInNewWindow(path);
-            }
-            else if (line.ToLower() == ".clear")
-            {
-                Console.Clear();
-            }
-            else
-            {
-                Run(line);
-            }
-            HadError = false;
-        }
-    }
-
-    private static void RunScript(string path)
-    {
-        if (!Path.Exists(path))
-        {
-            Console.WriteLine("Invalid path. Press any key to continue...");
-            Console.ReadKey();
-            Environment.Exit(65);
-        }
-        string script = File.ReadAllText(path);
-        Run(script);
-
-        if (HadError)
-        {
-            Console.WriteLine("Errored while running script, press any key to continue");
-            Console.ReadKey();
-            Environment.Exit(65);
-        }
-        if (HadRuntimeError)
-        {
-            Console.WriteLine("Errored while running script, press any key to continue");
-            Console.ReadKey();
-            Environment.Exit(70);
-        }
-
-        Console.WriteLine("\n\nFinished, press any key to exit...");
-        Console.ReadKey();
-        Environment.Exit(0);
-    }
-
-    private static void Run(string source)
-    {
+    
+    public static void Run(string source) {
         Lexer lexer = new Lexer(source);
         List<Token> tokens = lexer.LexSource();
         Parser parser = new Parser(tokens);
@@ -99,42 +30,16 @@ public class Thorium {
 
         if (HadError) return;
 
-        // Generate and run the IL code from the parsed expression
         try {
             runner.Run(stmts);
         }
         catch (Exception e) {
-            Console.WriteLine(e.Message);
-            Console.WriteLine(e.StackTrace);
+            Console.WriteLine($"Runtime Error: {e.Message}");
         }
 
+        HadError = false;
     }
-
-    private static void RunScriptInNewWindow(string path)
-    {
-        if (!File.Exists(path))
-        {
-            Console.WriteLine($"Error: Could not find file '{path}'");
-            return;
-        }
-
-        try
-        {
-            // Start a new process with the current executable and the script path
-            ProcessStartInfo startInfo = new ProcessStartInfo();
-            startInfo.FileName = Environment.ProcessPath;
-            startInfo.Arguments = $"\"{path}\"";
-            startInfo.UseShellExecute = true;  // This opens in a new window
-            startInfo.WindowStyle = ProcessWindowStyle.Normal;
-
-            Process.Start(startInfo);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error launching script: {ex.Message}");
-        }
-    }
-
+    
     public static void RuntimeError(RuntimeError error) {
         Console.Error.WriteLine($"[Line {error.Token.Line}]\n{error.Message}");
         HadRuntimeError = true;

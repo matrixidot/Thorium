@@ -2,6 +2,7 @@ namespace Thorium.API.Parsing;
 
 using Lexing;
 public interface StmtVisitor<R> {
+	 R VisitBlockStmt (Block stmt);
 	 R VisitExpressionStmt (Expression stmt);
 	 R VisitVarStmt (Var stmt);
 	 R VisitPrintStmt (Print stmt);
@@ -10,6 +11,14 @@ public interface StmtVisitor<R> {
 public abstract class Stmt {
 
 	public abstract R Accept<R>(StmtVisitor<R> visitor);
+}
+
+public class Block(List<Stmt> statements) : Stmt {
+	public List<Stmt> Statements { get; } = statements;
+
+	public override R Accept<R>(StmtVisitor<R> visitor) {
+		return visitor.VisitBlockStmt(this);
+	}
 }
 
 public class Expression(Expr expr) : Stmt {

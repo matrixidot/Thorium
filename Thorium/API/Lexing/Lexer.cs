@@ -51,7 +51,8 @@ public class Lexer(string Source) {
         char c = Advance();
         switch (c) {
             // Easy Ones
-            case '(': AddToken(L_PAREN); break;
+            case '(':
+                HandleLeftParen(); break;
             case ')': AddToken(R_PAREN); break;
             case '{': AddToken(L_BRACE); break;
             case '}': AddToken(R_BRACE); break;
@@ -150,6 +151,41 @@ public class Lexer(string Source) {
         } else {
             Thorium.Error(Line, $"Invalid number format: {numberStr}");
         }
+    }
+
+    private void HandleLeftParen() {
+        int tempStart = Current;
+        
+        while (!IsAtEnd && char.IsLetterOrDigit(Peek)) {
+            Advance();
+        }
+
+        if (!IsAtEnd && Peek == ')') {
+            string typeName = Source.Substring(tempStart, Current - tempStart).Trim();
+
+            if (IsType(typeName)) {
+                Tokens.Add(new Token(TYPECAST, typeName, null, Line));
+                Advance();
+            } else {
+                Current = tempStart;
+                AddToken(L_PAREN);
+            }
+        } else {
+            Current = tempStart;
+            AddToken(L_PAREN);
+        }
+    }
+
+    // Helper to check if a string is a valid type
+    private bool IsType(string identifier) {
+        // Built-in types or user-defined types (expand as needed)
+        string[] validTypes = ["int", "long", "double", "string", "char", "object"];
+        return validTypes.Contains(identifier) || IsUserDefinedType(identifier);
+    }
+
+    // Extendable method for user-defined types
+    private bool IsUserDefinedType(string typeName) {
+        return Type.GetType(typeName) != null;
     }
     
     private void String() {

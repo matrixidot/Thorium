@@ -6,7 +6,7 @@ using Parsing;
 using Expression = System.Linq.Expressions.Expression;
 
 public class ILRunner {
-    private readonly ExpressionTreeEmitter emitter = new ExpressionTreeEmitter();
+    private readonly Emitter emitter = new Emitter();
     private readonly List<Expression> expressions = [];
     public void Run(List<Stmt> statements) {
         try {
@@ -14,8 +14,8 @@ public class ILRunner {
                 Expression expr = Execute(statement, emitter);
                 expressions.Add(expr);
             }
-            
-            List<ParameterExpression> variables = emitter.VarList;
+
+            List<ParameterExpression> variables = emitter.GlobalVars;
             BlockExpression block = Expression.Block(variables, expressions);
             
             if (block.Type == typeof(void))
@@ -45,7 +45,7 @@ public class ILRunner {
         }
     }
     
-    private Expression Execute(Stmt stmt, ExpressionTreeEmitter emitter)
+    private Expression Execute(Stmt stmt, Emitter emitter)
     {
         return stmt.Accept(emitter);
     }

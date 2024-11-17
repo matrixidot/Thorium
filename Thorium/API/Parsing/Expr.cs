@@ -8,6 +8,7 @@ public interface ExprVisitor<R> {
 	 R VisitLiteralExpr (Literal expr);
 	 R VisitUnaryExpr (Unary expr);
 	 R VisitVariableExpr (Variable expr);
+	 R VisitTypeCastExpr (TypeCast expr);
 }
 
 public abstract class Expr {
@@ -65,6 +66,15 @@ public class Variable(Token name) : Expr {
 
 	public override R Accept<R>(ExprVisitor<R> visitor) {
 		return visitor.VisitVariableExpr(this);
+	}
+}
+
+public class TypeCast(Token type, Expr expr) : Expr {
+	public Token Type { get; } = type;
+	public Expr Expr { get; } = expr;
+
+	public override R Accept<R>(ExprVisitor<R> visitor) {
+		return visitor.VisitTypeCastExpr(this);
 	}
 }
 

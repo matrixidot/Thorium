@@ -9,8 +9,10 @@ public class DefineAsts {
             "Literal  : Token tkn, object value",
             "Unary    : Token op, Expr right",
             "Variable : Token name",
+            "TypeCast : Token type, Expr expr",
         ]);        
         DefineAst(outputDir, "Stmt", [
+            "Block      : List<Stmt> statements",
             "Expression : Expr expr",
             "Var        : Type typ, Token name, Expr initializer",
             "Print      : Expr expr",

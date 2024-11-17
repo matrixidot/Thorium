@@ -35,7 +35,17 @@ public class Parser(List<Token> Tokens) {
     
     private Stmt Statement() {
         if (Match(PRINT)) return PrintStatement();
+        if (Match(L_BRACE)) return new Block(Block());
         return ExpressionStatement();
+    }
+
+    private List<Stmt> Block() {
+        List<Stmt> statements = [];
+        while (!Check(R_BRACE) && !IsAtEnd) {
+            statements.Add(Declaration());
+        }
+        Consume(R_BRACE, "Expect '}' after block.");
+        return statements;
     }
 
     private Print PrintStatement() {
@@ -202,6 +212,11 @@ public class Parser(List<Token> Tokens) {
             Expr right = Unary();
             return new Unary(op, right);
         }
+        if (Match(TYPECAST)) {
+            Token type = Previous;
+            Expr expression = Unary();
+            return new TypeCast(type, expression);
+        }
         return Primary();
     }
 
@@ -212,6 +227,7 @@ public class Parser(List<Token> Tokens) {
         if (Match(NUMBER, STRING_LIT, CHAR_LIT)) return new Literal(Previous, Previous.Literal);
         if (Match(IDENTIFIER)) return new Variable(Previous);
         
+
 
         if (Match(L_PAREN)) {
             Expr expr = Expression();
