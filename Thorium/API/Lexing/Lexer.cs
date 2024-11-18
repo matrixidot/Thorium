@@ -1,7 +1,6 @@
 ﻿namespace Thorium.API.Lexing;
 
 using System.Text.RegularExpressions;
-using Tools;
 using static TokenType;
 
 public class Lexer(string Source) {
@@ -51,8 +50,7 @@ public class Lexer(string Source) {
         char c = Advance();
         switch (c) {
             // Easy Ones
-            case '(':
-                HandleLeftParen(); break;
+            case '(': HandleLeftParen(); break;
             case ')': AddToken(R_PAREN); break;
             case '{': AddToken(L_BRACE); break;
             case '}': AddToken(R_BRACE); break;
@@ -66,24 +64,26 @@ public class Lexer(string Source) {
             case ';': AddToken(SEMICOLON); break;
             case '"': String(); break;
             case '\'': Char(); break;
-            case ' ' or '\r' or '\t': break;
+            case ' ':
+            case '\r':
+            case '\t': break;
             case '\n': Line++; break;
             case '.': 
                 if (char.IsDigit(Peek)) Number(true); 
                 else AddToken(DOT); 
                 break;
             // Math Operators
-            case '+': CompositeMatch("+ | =", INCREMENT, PLUS_EQUAL, PLUS); break;
-            case '-': CompositeMatch("- | =", DECREMENT, MINUS_EQUAL, MINUS); break;
-            case '*': CompositeMatch("*= | * | =", POW_EQUAL, POW, MULT_EQUAL, MULT); break;
+            case '+': AddToken(Match("+") ? INCREMENT : Match("=") ? PLUS_EQUAL : PLUS); break;
+            case '-': AddToken(Match("-") ? DECREMENT : Match("=") ? MINUS_EQUAL : MINUS); break;
+            case '*': AddToken(Match("*=") ? POW_EQUAL : Match("*") ? POW : Match("=") ? MULT_EQUAL : MULT); break;
             case '/':
                 if (Match("/")) while (Peek != '\n' && !IsAtEnd) Advance();
                 else AddToken(Match("=") ? DIV_EQUAL : DIV);
                 break;
             case '%': AddToken(Match("=") ? MOD_EQUAL : MOD); break;
             // Relational Operators
-            case '>': CompositeMatch("= | >", GREATER_EQUAL, RIGHT_SHIFT, GREATER); break;
-            case '<': CompositeMatch("= | <", LESS_EQUAL, LEFT_SHIFT, LESS); break;
+            case '>': AddToken(Match("=") ? GREATER_EQUAL : Match(">") ? RIGHT_SHIFT: GREATER); break;
+            case '<': AddToken(Match("=") ? LESS_EQUAL : Match("<") ? LEFT_SHIFT : LESS); break;
             // Logical Operators
             case '!': AddToken(Match("=") ? BANG_EQUAL : BANG); break;
             case '=': AddToken(Match("=") ? EQUAL_EQUAL : EQUAL); break;
@@ -100,15 +100,6 @@ public class Lexer(string Source) {
     }
 
 
-    private void CompositeMatch(string matches, params TokenType[] types) {
-        string[] arr = matches.Split('|');
-        for (int i = 0; i < arr.Length; i++) {
-            if (!Match(arr[i].Trim())) continue;
-            AddToken(types[i]);
-            return;
-        }
-        AddToken(types[^1]);
-    }
     private bool Match(string expected) {
         if (Current + expected.Length >= Source.Length) return false;
         if (Source.Substring(Current, expected.Length) != expected) return false;

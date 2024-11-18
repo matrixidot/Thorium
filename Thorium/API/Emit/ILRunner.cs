@@ -7,30 +7,32 @@ using Expression = System.Linq.Expressions.Expression;
 
 public class ILRunner {
     private readonly Emitter emitter = new Emitter();
-    private readonly List<Expression> expressions = [];
-    public void Run(List<Stmt> statements) {
+    public void CompileAndRun(List<Stmt> statements) {
         try {
+            List<Expression> expressions = [];
             foreach (Stmt statement in statements) {
                 Expression expr = Execute(statement, emitter);
                 expressions.Add(expr);
             }
-
-            List<ParameterExpression> variables = emitter.GlobalVars;
-            BlockExpression block = Expression.Block(variables, expressions);
+            
+            BlockExpression block = Expression.Block(emitter.GlobalVars, expressions);
             
             if (block.Type == typeof(void))
             {
                 Expression<Action> lambda = Expression.Lambda<Action>(block);
                 Action compiled = lambda.Compile();
+                Thorium.Time("Compiled");
                 compiled();
             }
             else
             {
                 Expression<Func<object>> lambda = Expression.Lambda<Func<object>>(Expression.Convert(block, typeof(object)));
                 Func<object> compiled = lambda.Compile();
+                Thorium.Time("Compiled");
                 object result = compiled();
                 Console.WriteLine(result);
             }
+            Thorium.Time("Executed");
         }
         catch (Exception e)
         {

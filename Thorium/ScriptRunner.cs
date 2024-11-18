@@ -12,7 +12,7 @@ public static class ScriptRunner {
         try {
             ProcessStartInfo startInfo = new() {
                 FileName = Environment.ProcessPath,
-                Arguments = $"\"{path}\"",
+                ArgumentList = { $"{path}", $"{Thorium.timing}" },
                 UseShellExecute = true,
                 WindowStyle = ProcessWindowStyle.Normal,
             };

@@ -1,6 +1,7 @@
 // Typecast Tests with Variables and Mathematical Operations
 
 // Variable definitions
+print "\n\n\n";
 int a = 2;
 long b = 4;
 double c = 234.561;

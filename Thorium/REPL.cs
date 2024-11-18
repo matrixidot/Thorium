@@ -14,29 +14,29 @@ public static class REPL {
             if (string.IsNullOrEmpty(line)) {
                 continue;
             }
-
-            if (line.Trim() == ".exit") {
-                break;
-            }
-            if (line.Trim() == ".clear") {
-                Console.Clear();
-            }
-            else if (line.Trim().StartsWith(".run ")) {
+            if (line.Trim().StartsWith(".run ")) {
                 string path = line.Substring(5).Trim();
                 ScriptRunner.Run(path);
             }
-            else if (line.Trim() == ".help") {
-                PrintHelp();
-            }
-            else {
-                buffer.Add(line);
-                openBraces += CountUnmatchedOpenBraces(line);
+            else switch (line.Trim()) {
+                case ".exit": return;
+                case ".clear": Console.Clear(); break;
+                case ".help": PrintHelp(); break;
+                case ".timer":
+                    Thorium.timing = !Thorium.timing;
+                    Console.WriteLine($"Timer is now {(Thorium.timing ? "on" : "off")}");
+                    break;
+                default: {
+                    buffer.Add(line);
+                    openBraces += CountUnmatchedOpenBraces(line);
 
-                if (openBraces > 0) continue;
-                string input = string.Join("\n", buffer);
-                buffer.Clear();
-                openBraces = 0;
-                Thorium.Run(input);
+                    if (openBraces > 0) continue;
+                    string input = string.Join("\n", buffer);
+                    buffer.Clear();
+                    openBraces = 0;
+                    Thorium.Run(input);
+                    break;
+                }
             }
         }
     }
