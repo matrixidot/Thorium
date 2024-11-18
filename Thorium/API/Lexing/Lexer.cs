@@ -1,15 +1,18 @@
 ﻿namespace Thorium.API.Lexing;
 
+using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using static TokenType;
 
-public class Lexer(string Source) {
-    private readonly List<Token> Tokens = [];
+public class Lexer(string source) {
+    private readonly List<Token> Tokens = new();
+
     private int Start;
     private int Current;
     private int Line = 1;
 
-    private static readonly Dictionary<string, TokenType> keywords = new() {
+    private static readonly Dictionary<string, TokenType> Keywords = new() {
         ["if"] = IF,
         ["elif"] = ELIF,
         ["else"] = ELSE,
@@ -18,14 +21,12 @@ public class Lexer(string Source) {
         ["continue"] = CONTINUE,
         ["break"] = BREAK,
         ["return"] = RETURN,
-
         ["class"] = CLASS,
         ["super"] = SUPER,
         ["this"] = THIS,
         ["null"] = NULL,
         ["true"] = TRUE,
         ["false"] = FALSE,
-        
         ["int"] = INT,
         ["long"] = LONG,
         ["double"] = DOUBLE,
@@ -33,12 +34,17 @@ public class Lexer(string Source) {
         ["string"] = STRING_TYPE,
         ["char"] = CHAR_TYPE,
         ["object"] = OBJECT,
-        
         ["print"] = PRINT,
     };
-    
-    public List<Token> LexSource() {
-        while (!IsAtEnd) {
+
+    private static readonly HashSet<string> ValidTypes = new() {
+        "int", "long", "double", "string", "char", "object", "bool"
+    };
+
+    public List<Token> LexSource()
+    {
+        while (!IsAtEnd())
+        {
             Start = Current;
             Lex();
         }
@@ -49,7 +55,6 @@ public class Lexer(string Source) {
     private void Lex() {
         char c = Advance();
         switch (c) {
-            // Easy Ones
             case '(': HandleLeftParen(); break;
             case ')': AddToken(R_PAREN); break;
             case '{': AddToken(L_BRACE); break;
@@ -57,197 +62,220 @@ public class Lexer(string Source) {
             case '[': AddToken(L_BRACKET); break;
             case ']': AddToken(R_BRACKET); break;
             case '~': AddToken(BIN_NOT); break;
-            case '&': AddToken(Match("&") ? AND : BIN_AND); break;
-            case '|': AddToken(Match("|") ? OR : BIN_OR); break;
+            case '&': AddToken(Match('&') ? AND : BIN_AND); break;
+            case '|': AddToken(Match('|') ? OR : BIN_OR); break;
             case '^': AddToken(BIN_XOR); break;
             case ',': AddToken(COMMA); break;
             case ';': AddToken(SEMICOLON); break;
-            case '"': String(); break;
-            case '\'': Char(); break;
+            case '"': StringLiteral(); break;
+            case '\'': CharLiteral(); break;
             case ' ':
             case '\r':
-            case '\t': break;
-            case '\n': Line++; break;
-            case '.': 
-                if (char.IsDigit(Peek)) Number(true); 
-                else AddToken(DOT); 
+            case '\t':
                 break;
-            // Math Operators
-            case '+': AddToken(Match("+") ? INCREMENT : Match("=") ? PLUS_EQUAL : PLUS); break;
-            case '-': AddToken(Match("-") ? DECREMENT : Match("=") ? MINUS_EQUAL : MINUS); break;
-            case '*': AddToken(Match("*=") ? POW_EQUAL : Match("*") ? POW : Match("=") ? MULT_EQUAL : MULT); break;
+            case '\n':
+                Line++;
+                break;
+            case '.':
+                if (char.IsDigit(Peek()))
+                    Number();
+                else
+                    AddToken(DOT);
+                break;
+            case '+':
+                AddToken(Match('+') ? INCREMENT : Match('=') ? PLUS_EQUAL : PLUS);
+                break;
+            case '-':
+                AddToken(Match('-') ? DECREMENT : Match('=') ? MINUS_EQUAL : MINUS);
+                break;
+            case '*':
+                if (Match('*'))
+                    AddToken(Match('=') ? POW_EQUAL : POW);
+                else
+                    AddToken(Match('=') ? MULT_EQUAL : MULT);
+                break;
             case '/':
-                if (Match("/")) while (Peek != '\n' && !IsAtEnd) Advance();
-                else AddToken(Match("=") ? DIV_EQUAL : DIV);
+                if (Match('/')) {
+                    while (Peek() != '\n' && !IsAtEnd()) Advance();
+                }
+                else {
+                    AddToken(Match('=') ? DIV_EQUAL : DIV);
+                }
                 break;
-            case '%': AddToken(Match("=") ? MOD_EQUAL : MOD); break;
-            // Relational Operators
-            case '>': AddToken(Match("=") ? GREATER_EQUAL : Match(">") ? RIGHT_SHIFT: GREATER); break;
-            case '<': AddToken(Match("=") ? LESS_EQUAL : Match("<") ? LEFT_SHIFT : LESS); break;
-            // Logical Operators
-            case '!': AddToken(Match("=") ? BANG_EQUAL : BANG); break;
-            case '=': AddToken(Match("=") ? EQUAL_EQUAL : EQUAL); break;
-            
+            case '%':
+                AddToken(Match('=') ? MOD_EQUAL : MOD);
+                break;
+            case '>':
+                if (Match('='))
+                    AddToken(GREATER_EQUAL);
+                else if (Match('>'))
+                    AddToken(RIGHT_SHIFT);
+                else
+                    AddToken(GREATER);
+                break;
+            case '<':
+                if (Match('='))
+                    AddToken(LESS_EQUAL);
+                else if (Match('<'))
+                    AddToken(LEFT_SHIFT);
+                else
+                    AddToken(LESS);
+                break;
+            case '!':
+                AddToken(Match('=') ? BANG_EQUAL : BANG);
+                break;
+            case '=':
+                AddToken(Match('=') ? EQUAL_EQUAL : EQUAL);
+                break;
             default:
                 if (char.IsDigit(c))
-                    Number(false);
-                else if (char.IsLetter(c))
+                    Number();
+                else if (char.IsLetter(c) || c == '_')
                     Identifier();
                 else
-                    Thorium.Error(Line, $"Unexpected Character {c}");
+                    Thorium.Error(Line, $"Unexpected character '{c}'");
                 break;
         }
     }
 
+    private bool Match(char expected) {
+        if (IsAtEnd() || source[Current] != expected) return false;
+        Current++;
+        return true;
+    }
 
     private bool Match(string expected) {
-        if (Current + expected.Length >= Source.Length) return false;
-        if (Source.Substring(Current, expected.Length) != expected) return false;
-        
+        if (Current + expected.Length > source.Length) return false;
+        if (source.Substring(Current, expected.Length) != expected) return false;
         Current += expected.Length;
         return true;
     }
 
     private void Identifier() {
-        while (char.IsLetterOrDigit(Peek)) Advance();
-        string text = Source.Substring(Start, Current - Start);
-        AddToken(keywords.GetValueOrDefault(text, IDENTIFIER), text);
+        while (char.IsLetterOrDigit(Peek()) || Peek() == '_') Advance();
+        string text = source.Substring(Start, Current - Start);
+        AddToken(Keywords.GetValueOrDefault(text, IDENTIFIER), text);
     }
-    private void Number(bool alreadyDecimal) {
-        while (char.IsDigit(Peek)) Advance();
 
-        if (Peek== '.' && !alreadyDecimal) {
-            if (PeekNChar(2) != '\0' && char.IsDigit(PeekNChar(2))) {
-                Advance();
+    private void Number() {
+        while (char.IsDigit(Peek())) Advance();
 
-                while (char.IsDigit(Peek)) Advance();
-            } else {
-                Thorium.Error(Line, "Invalid number format (trailing decimal point).");
-                return;
-            }
+        if (Peek() == '.' && char.IsDigit(PeekNext())) {
+            Advance(); // Consume '.'
+            while (char.IsDigit(Peek())) Advance();
         }
 
-        if (Peek== '.') {
-            Thorium.Error(Line, "Invalid number format (multiple decimal points).");
-            return;
+        string numberStr = source.Substring(Start, Current - Start);
+        if (int.TryParse(numberStr, out int i)) {
+            AddToken(NUMBER, i);
+        } else if (long.TryParse(numberStr, out long l)) {
+            AddToken(NUMBER, l);
+        } else if (double.TryParse(numberStr, out double d)) {
+            AddToken(NUMBER, d);
         }
-
-        string numberStr = Source.Substring(Start, Current - Start);
-        if (int.TryParse(numberStr, out int iin)) {
-            AddToken(NUMBER, iin);
-        } else if (long.TryParse(numberStr, out long ln)) {
-            AddToken(NUMBER, ln);
-        } else if (double.TryParse(numberStr, out double dn)) {
-            AddToken(NUMBER, dn);
-        } else {
+        else {
             Thorium.Error(Line, $"Invalid number format: {numberStr}");
         }
     }
 
     private void HandleLeftParen() {
-        int tempStart = Current;
-        
-        while (!IsAtEnd && char.IsLetterOrDigit(Peek)) {
+        int tempCurrent = Current;
+
+        while (!IsAtEnd() && (char.IsLetterOrDigit(Peek()) || Peek() == '_')) {
             Advance();
         }
 
-        if (!IsAtEnd && Peek == ')') {
-            string typeName = Source.Substring(tempStart, Current - tempStart).Trim();
+        if (!IsAtEnd() && Peek() == ')') {
+            string typeName = source.Substring(tempCurrent, Current - tempCurrent).Trim();
 
             if (IsType(typeName)) {
-                Tokens.Add(new Token(TYPECAST, typeName, null, Line));
-                Advance();
-            } else {
-                Current = tempStart;
-                AddToken(L_PAREN);
+                Advance(); // Consume ')'
+                AddToken(TYPECAST, typeName);
+                return;
             }
-        } else {
-            Current = tempStart;
-            AddToken(L_PAREN);
         }
+
+        // Not a type cast, reset Current to the character after '('
+        Current = tempCurrent;
+        AddToken(L_PAREN);
     }
 
-    // Helper to check if a string is a valid type
+
     private bool IsType(string identifier) {
-        // Built-in types or user-defined types (expand as needed)
-        string[] validTypes = ["int", "long", "double", "string", "char", "object", "bool"];
-        return validTypes.Contains(identifier) || IsUserDefinedType(identifier);
+        return ValidTypes.Contains(identifier) || IsUserDefinedType(identifier);
     }
 
-    // Extendable method for user-defined types
     private bool IsUserDefinedType(string typeName) {
-        char c = 's';
-        return Type.GetType(typeName) != null;
+        return ValidTypes.Contains(typeName) || Type.GetType(typeName) != null;
     }
-    
-    private void String() {
-        while (!IsAtEnd) {
-            if (Peek == '"' && (Current == Start + 1 || Source[Current - 1] != '\\')) {
+
+    private void StringLiteral() {
+        while (!IsAtEnd()) {
+            if (Peek() == '"' && source[Current - 1] != '\\') {
                 break;
             }
 
-            if (Peek == '\n') Line++;
+            if (Peek() == '\n') Line++;
             Advance();
         }
 
-        if (IsAtEnd) {
-            Thorium.Error(Line, "Unterminated string.");
+        if (IsAtEnd()) {
+            Thorium.Error(Line, "Unterminated string literal.");
             return;
         }
 
-        Advance();
-        string value = Source.Substring(Start + 1, Current - Start - 2);
-        AddToken(STRING_LIT, Regex.Unescape(value));
+        Advance(); // Consume closing '"'
+        string value = Regex.Unescape(source.Substring(Start + 1, Current - Start - 2));
+        AddToken(STRING_LIT, value);
     }
 
-    private void Char() {
-        if (IsAtEnd) {
+    private void CharLiteral() {
+        if (IsAtEnd()) {
             Thorium.Error(Line, "Unterminated character literal.");
             return;
         }
 
         char value;
-        if (Peek == '\\') {
-            Advance();
-            if (IsAtEnd) {
-                Thorium.Error(Line, "Unterminated character literal with escape sequence.");
+        if (Peek() == '\\') {
+            Advance(); // Consume '\'
+
+            if (IsAtEnd()) {
+                Thorium.Error(Line, "Unterminated escape sequence in character literal.");
                 return;
             }
 
-            switch (Advance()) {
-                case 't': value = '\t'; break;
-                case 'n': value = '\n'; break;
-                case 'r': value = '\r'; break;
-                case '0': value = '\0'; break;
-                case '\'': value = '\''; break;
-                case '\\': value = '\\'; break;
-                default:
-                    Thorium.Error(Line, "Invalid escape sequence in character literal.");
-                    return;
-            }
-        } else {
+            value = Advance() switch {
+                't' => '\t',
+                'n' => '\n',
+                'r' => '\r',
+                '0' => '\0',
+                '\'' => '\'',
+                '\\' => '\\',
+                _ => throw new Exception("Invalid escape sequence in character literal.")
+            };
+        }
+        else {
             value = Advance();
         }
 
-        if (IsAtEnd || Advance() != '\'') {
+        if (IsAtEnd() || Advance() != '\'') {
             Thorium.Error(Line, "Unterminated character literal.");
             return;
         }
 
         AddToken(CHAR_LIT, value);
     }
-    
-    private char PeekNChar(int amount) {
-        int targetIndex = Current + amount - 1;
-        return targetIndex < Source.Length ? Source[targetIndex] : '\0';
-    }
 
     private void AddToken(TokenType type, object literal = null) {
-        string text = Source.Substring(Start, Current - Start);
+        string text = source.Substring(Start, Current - Start);
         Tokens.Add(new Token(type, text, literal, Line));
     }
 
-    private char Advance() => Source[Current++];
-    private bool IsAtEnd => Current >= Source.Length;
-    private char Peek => IsAtEnd ? '\0' : Source[Current];
+    private char Advance() => source[Current++];
+
+    private bool IsAtEnd() => Current >= source.Length;
+
+    private char Peek() => IsAtEnd() ? '\0' : source[Current];
+
+    private char PeekNext() => Current + 1 >= source.Length ? '\0' : source[Current + 1];
 }

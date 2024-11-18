@@ -54,10 +54,10 @@ public class Parser(List<Token> Tokens) {
         return new Print(value);
     }
     
-    private Expression ExpressionStatement() {
+    private ExprStmt ExpressionStatement() {
         Expr expr = Expression();
         Consume(SEMICOLON, "Expect ';' after expression.");
-        return new Expression(expr);
+        return new ExprStmt(expr);
 
     }
 
@@ -207,17 +207,34 @@ public class Parser(List<Token> Tokens) {
     }
     
     private Expr Unary() {
-        if (Match(BANG, MINUS, BIN_NOT)) {
+        if (Match(INCREMENT, DECREMENT)) {
+            Token op = Previous;
+            Expr right = Unary();
+
+            if (right is Variable var) {
+                return new IncDec(op, var, isPrefix: true);
+            }
+            throw Error(op, "Invalid increment/decrement target.");
+        }
+        
+        if (!Match(BANG, MINUS, BIN_NOT)) return Postfix(); {
             Token op = Previous;
             Expr right = Unary();
             return new Unary(op, right);
         }
-        if (Match(TYPECAST)) {
-            Token type = Previous;
-            Expr expression = Unary();
-            return new TypeCast(type, expression);
+    }
+    
+    private Expr Postfix() {
+        Expr expr = Primary();
+        
+        if (!Match(INCREMENT, DECREMENT)) return expr;
+        Token op = Previous;
+        
+        if (expr is Variable var) {
+            return new IncDec(op, var, isPrefix: false);
         }
-        return Primary();
+        
+        throw Error(op, "Invalid increment/decrement target.");
     }
 
     private Expr Primary() {

@@ -9,6 +9,7 @@ public interface ExprVisitor<R> {
 	 R VisitUnaryExpr (Unary expr);
 	 R VisitVariableExpr (Variable expr);
 	 R VisitTypeCastExpr (TypeCast expr);
+	 R VisitIncDecExpr (IncDec expr);
 }
 
 public abstract class Expr {
@@ -75,6 +76,16 @@ public class TypeCast(Token type, Expr expr) : Expr {
 
 	public override R Accept<R>(ExprVisitor<R> visitor) {
 		return visitor.VisitTypeCastExpr(this);
+	}
+}
+
+public class IncDec(Token op, Variable target, bool isPrefix) : Expr {
+	public Token Op { get; } = op;
+	public Variable Target { get; } = target;
+	public bool IsPrefix { get; } = isPrefix;
+
+	public override R Accept<R>(ExprVisitor<R> visitor) {
+		return visitor.VisitIncDecExpr(this);
 	}
 }
 
