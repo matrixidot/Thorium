@@ -34,11 +34,35 @@ public class Parser(List<Token> Tokens) {
     }
     
     private Stmt Statement() {
+        if (Match(IF)) return IfStatement();
         if (Match(PRINT)) return PrintStatement();
         if (Match(L_BRACE)) return new Block(Block());
         return ExpressionStatement();
     }
 
+    private If IfStatement() {
+        Consume(L_PAREN, "Expected '(' after 'if'.");
+        Expr condition = Expression();
+        Consume(R_PAREN, "Expected ')' after condition to complete if statement.");
+        
+        Stmt thenBranch = Statement();
+
+        var elifBranches = new List<Elif>();
+        while (Match(ELIF)) {
+            Consume(L_PAREN, "Expected '(' after 'elif'.");
+            Expr elifCondition = Expression();
+            Consume(R_PAREN, "Expected ')' after condition to complete elif branch.");
+            Stmt elifBranch = Statement();
+            elifBranches.Add(new Elif(elifCondition, elifBranch));
+        }
+        
+        Stmt elseBranch = null;
+        if (Match(ELSE)) {
+            elseBranch = Statement();
+        }
+        return new If(condition, thenBranch, elifBranches, elseBranch);
+    }
+    
     private List<Stmt> Block() {
         List<Stmt> statements = [];
         while (!Check(R_BRACE) && !IsAtEnd) {

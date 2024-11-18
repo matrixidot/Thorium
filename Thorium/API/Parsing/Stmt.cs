@@ -6,6 +6,8 @@ public interface StmtVisitor<R> {
 	 R VisitExprStmtStmt (ExprStmt stmt);
 	 R VisitVarStmt (Var stmt);
 	 R VisitPrintStmt (Print stmt);
+	 R VisitIfStmt (If stmt);
+	 R VisitElifStmt (Elif stmt);
 }
 
 public abstract class Stmt {
@@ -44,6 +46,26 @@ public class Print(Expr expr) : Stmt {
 
 	public override R Accept<R>(StmtVisitor<R> visitor) {
 		return visitor.VisitPrintStmt(this);
+	}
+}
+
+public class If(Expr condition, Stmt thenBranch, List<Elif> elifBranches, Stmt elseBranch) : Stmt {
+	public Expr Condition { get; } = condition;
+	public Stmt ThenBranch { get; } = thenBranch;
+	public List<Elif> ElifBranches { get; } = elifBranches;
+	public Stmt ElseBranch { get; } = elseBranch;
+
+	public override R Accept<R>(StmtVisitor<R> visitor) {
+		return visitor.VisitIfStmt(this);
+	}
+}
+
+public class Elif(Expr condition, Stmt branch) : Stmt {
+	public Expr Condition { get; } = condition;
+	public Stmt Branch { get; } = branch;
+
+	public override R Accept<R>(StmtVisitor<R> visitor) {
+		return visitor.VisitElifStmt(this);
 	}
 }
 

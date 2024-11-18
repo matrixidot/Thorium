@@ -1,4 +1,7 @@
-﻿namespace Thorium.API.Emit;
+﻿using Thorium.API.Errors;
+using Thorium.API.Lexing;
+
+namespace Thorium.API.Emit;
 
 using System;
 using System.Collections.Generic;
@@ -58,6 +61,29 @@ public partial class Emitter : ExprVisitor<Expression>, StmtVisitor<Expression> 
             return Expression.Assign(variable, initializerExpr);
         }
 
+        public Expression VisitIfStmt(If stmt) {
+            if (IsTruthy(Evaluate(stmt.Condition))) {
+                Execute(stmt.ThenBranch);
+            
+            } else {
+                bool elifBranchExecuted = false;
+                foreach (Elif elif in stmt.ElifBranches.Where(elif => IsTruthy(Evaluate(elif.Condition)))) {
+                    Execute(elif.Branch);
+                    elifBranchExecuted = true;
+                    break;
+                }
+
+                if (!elifBranchExecuted && stmt.ElseBranch != null) {
+                    Execute(stmt.ElseBranch);
+                }
+            }
+            return null;
+        }
+
+        public Expression VisitElifStmt(Elif stmt) {
+            throw new RuntimeError(new Token(ELIF, "elif", null, 0), "Unexpected elif Statement, Are you missing an if?");
+        }
+        
         public Expression VisitVariableExpr(Variable expr) {
             if (TryResolveVariable(expr.Name.Lexeme, out ParameterExpression variable)) {
                 return variable;

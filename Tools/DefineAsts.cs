@@ -1,6 +1,6 @@
 ﻿namespace Tools;
 
-public class DefineAsts {
+public static class DefineAsts {
     public static void Run(string outputDir) {
         DefineAst(outputDir, "Expr", [
             "Assign   : Token name, Expr value",
@@ -17,6 +17,8 @@ public class DefineAsts {
             "ExprStmt : Expr expr",
             "Var        : Type typ, Token name, Expr initializer",
             "Print      : Expr expr",
+            "If         : Expr condition, Stmt thenBranch, List<Elif> elifBranches, Stmt elseBranch",
+            "Elif       : Expr condition, Stmt branch",
         ]);
     }
     
